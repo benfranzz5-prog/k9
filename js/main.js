@@ -8,7 +8,7 @@
 const CONFIG = {
   whatsapp: "523300000000",          // full number with country code, digits only (52 = México)
   phoneDisplay: "+52 33 0000 0000",  // how the number is shown on the page
-  instagram: "https://instagram.com/",
+  instagram: "https://www.instagram.com/thek9boutiquehotel/",
   facebook: "https://facebook.com/",
 };
 
