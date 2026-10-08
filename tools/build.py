@@ -21,7 +21,7 @@ from pathlib import Path
 
 # The live web address, without a trailing slash, e.g. "https://www.k9boutiquehotel.mx".
 # Leave empty until the domain works; then set it and run this script again.
-SITE_URL = ""
+SITE_URL = "https://thek9boutiquehotel.com"
 
 AREAS = [
     "Ixtlahuacán de los Membrillos", "Chapala", "Ajijic", "San Nicolás de Ibarra",

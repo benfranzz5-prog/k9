@@ -38,8 +38,8 @@ Never edit `en/index.html` by hand; the next build overwrites it.
 
 ## Launch checklist (local search)
 
-1. **Domain:** set `SITE_URL` at the top of `tools/build.py` (e.g. `"https://www.k9boutiquehotel.mx"`)
-   and run the build. This adds the canonical and language links Google needs, and creates `sitemap.xml`.
+1. **Domain (done):** `SITE_URL` in `tools/build.py` is `https://thek9boutiquehotel.com`. If the domain
+   ever changes, update it there and run the build.
 2. **Google Search Console:** add the domain and submit `sitemap.xml`.
 3. **Google Business Profile:** this decides who shows up in the map results. Use exactly the same
    name, address (Av. Acueducto 747, Ixtlahuacán de los Membrillos) and WhatsApp number as the site.
