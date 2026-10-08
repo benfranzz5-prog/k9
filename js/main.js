@@ -6,8 +6,8 @@
 
 /* ---- EDIT YOUR CONTACT DETAILS HERE ---- */
 const CONFIG = {
-  whatsapp: "523300000000",          // full number with country code, digits only (52 = México)
-  phoneDisplay: "+52 33 0000 0000",  // how the number is shown on the page
+  whatsapp: "523314236767",          // full number with country code, digits only (52 = México)
+  phoneDisplay: "+52 33 1423 6767",  // how the number is shown on the page
   instagram: "https://www.instagram.com/thek9boutiquehotel/",
   facebook: "https://www.facebook.com/people/The-k9-boutique-hotel/100063778140840/",
 };
