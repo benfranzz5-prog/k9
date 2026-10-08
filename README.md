@@ -18,7 +18,7 @@ Open `index.html` in any browser to view the site. No build step, no installs.
 2. **Facts to double-check** (adjust in `index.html` if any are off):
    - "A typical day" times: 07:00 van, 08:00 hike, 13:00 lunch, 16:00 yard, 20:00 bed
    - Requirements: vaccines, deworming, flea/tick treatment, meet-and-greet before the first visit
-   - Founder photo (`img/k9-0750.webp`) and story
+   - Founder story (the founder section uses a pack photo, `img/k9-0727.webp`; swap in a photo of the founder if you have one)
 
 ## Structure
 
