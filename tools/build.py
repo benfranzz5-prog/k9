@@ -121,6 +121,7 @@ def seo_block(lang, cfg, prefix):
         "address": {
             "@type": "PostalAddress",
             "streetAddress": "Av. Acueducto 747",
+            "postalCode": "45850",
             "addressLocality": "Ixtlahuacán de los Membrillos",
             "addressRegion": "Jalisco",
             "addressCountry": "MX",
