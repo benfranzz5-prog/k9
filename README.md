@@ -16,7 +16,7 @@ Open `index.html` in any browser to view the site. No build step, no installs.
    Every WhatsApp button, the booking form and the phone number on the page use these values.
 
 2. **Facts to double-check** (adjust in `index.html` if any are off):
-   - "A typical day" times: 07:00 van, 08:00 hike, 13:00 lunch, 16:00 yard, 20:00 bed
+   - "A typical day" times: 08:00 hike, 13:00 lunch, 16:00 yard, 20:00 bed
    - Requirements: vaccines, deworming, flea/tick treatment, meet-and-greet before the first visit
    - Founder story (the founder section uses a pack photo, `img/k9-0727.webp`; swap in a photo of the founder if you have one)
 
@@ -40,7 +40,7 @@ WhatsApp message builder. There is no scroll animation.
 
 Export a photo to `img/k9-XXXX.webp` (~1440px) and `img/k9-XXXX-sm.webp` (~720px), then add
 `[XXXX, "montana", width, height]` to `js/gallery-data.js`. Categories: `montana`, `manada`,
-`agua` (all shown under "Hikes"), `hotel`, `ruta` (shown under "Walks").
+`agua`, `ruta` (all shown under "Hikes") and `hotel`.
 
 ## Hosting
 

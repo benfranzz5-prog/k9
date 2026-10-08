@@ -72,13 +72,13 @@ const CONFIG = {
 
   /* ---------- Gallery ---------- */
   const PAGE = 12;
-  const GROUPS = { all: null, caminatas: ["montana", "manada", "agua"], hotel: ["hotel"], paseos: ["ruta"] };
+  const GROUPS = { all: null, caminatas: ["montana", "manada", "agua", "ruta"], hotel: ["hotel"] };
   const ALT = {
     montana: { es: "Perros caminando en la montaña", en: "Dogs hiking in the mountains" },
     manada: { es: "La manada en la montaña", en: "The pack in the mountains" },
     agua: { es: "Perros refrescándose en el agua", en: "Dogs cooling off in the water" },
     hotel: { es: "Perros en el hotel", en: "Dogs at the hotel" },
-    ruta: { es: "Perros en un paseo", en: "Dogs on a walk" },
+    ruta: { es: "Perros en una caminata", en: "Dogs on a hike" },
   };
   const gallery = $("#gallery"), loadMore = $("#loadMore"), filters = $(".filters");
   const file = (id, sm) => `img/k9-${String(id).padStart(4, "0")}${sm ? "-sm" : ""}.webp`;
@@ -167,17 +167,17 @@ const CONFIG = {
     if (missing.length) { form.elements[missing[0]].focus(); return; }
     const en = lang() === "en";
     const services = en
-      ? { hotel: "Hotel stay", caminata: "Pack mountain hike", paseos: "Pick-up dog walks" }
-      : { hotel: "Estancia en hotel", caminata: "Caminata en manada", paseos: "Paseos con recolección" };
+      ? { hotel: "Hotel stay", caminata: "Pack mountain hike" }
+      : { hotel: "Estancia en hotel", caminata: "Caminata en manada" };
     const lines = en ? [
       "Hi! I'd like to book at The K9 Boutique Hotel 🐾", "",
       `• Service: ${services[d.service]}`, `• My name: ${d.name}`, `• Dog: ${d.dog}`,
-      (d.breed ? `• Breed / age: ${d.breed}` : null), (d.area ? `• Area: ${d.area}` : null),
+      (d.breed ? `• Breed / age: ${d.breed}` : null),
       (d.from || d.to ? `• Dates: ${d.from || "?"} → ${d.to || "?"}` : null), (d.notes ? `• About my dog: ${d.notes}` : null),
     ] : [
       "¡Hola! Quiero reservar en The K9 Boutique Hotel 🐾", "",
       `• Servicio: ${services[d.service]}`, `• Mi nombre: ${d.name}`, `• Perro: ${d.dog}`,
-      (d.breed ? `• Raza / edad: ${d.breed}` : null), (d.area ? `• Zona: ${d.area}` : null),
+      (d.breed ? `• Raza / edad: ${d.breed}` : null),
       (d.from || d.to ? `• Fechas: ${d.from || "?"} → ${d.to || "?"}` : null), (d.notes ? `• Sobre mi perro: ${d.notes}` : null),
     ];
     window.open(waLink(lines.filter(l => l !== null).join("\n")), "_blank", "noopener");
