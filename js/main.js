@@ -1,5 +1,7 @@
 /* ==========================================================================
    The K9 Boutique Hotel — interactions
+   The page is fully readable without JavaScript; this file adds the
+   language switch, WhatsApp links, gallery filters, lightbox and booking form.
    ========================================================================== */
 
 /* ---- EDIT YOUR CONTACT DETAILS HERE ---- */
@@ -15,240 +17,125 @@ const CONFIG = {
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = matchMedia("(pointer: fine)").matches;
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
 
-  /* ---------- Language ---------- */
-  const lang = () => root.lang;
-  function setLang(l) {
-    root.lang = l;
-    $$(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === l));
-    store.set("k9-lang", l);
-  }
-  const saved = store.get("k9-lang");
-  setLang(saved || ((navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es"));
-  $$(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
-
   /* ---------- Contact links ---------- */
   const waLink = (text = "") => `https://wa.me/${CONFIG.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
-  $$("[data-wa]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      const msg = lang() === "en"
-        ? "Hi! I'd like information about The K9 Boutique Hotel 🐾"
-        : "¡Hola! Me gustaría información sobre The K9 Boutique Hotel 🐾";
-      window.open(waLink(msg), "_blank", "noopener");
-    });
-  });
+  function updateWaLinks() {
+    const msg = lang() === "en"
+      ? "Hi! I'd like information about The K9 Boutique Hotel 🐾"
+      : "¡Hola! Me gustaría información sobre The K9 Boutique Hotel 🐾";
+    $$("[data-wa]").forEach(a => { a.href = waLink(msg); a.target = "_blank"; a.rel = "noopener"; });
+  }
   $$("[data-phone]").forEach(el => (el.textContent = CONFIG.phoneDisplay));
   $$("[data-social]").forEach(a => { a.href = CONFIG[a.dataset.social]; a.target = "_blank"; a.rel = "noopener"; });
   $("#year").textContent = new Date().getFullYear();
 
-  /* ---------- Load-in ---------- */
-  const markLoaded = () => document.body.classList.add("loaded");
-  requestAnimationFrame(() => setTimeout(markLoaded, 120));
+  /* ---------- Language ---------- */
+  const TITLES = {
+    es: document.title,
+    en: "The K9 Boutique Hotel · Dog hotel and mountain hikes · Jalisco",
+  };
+  // Remember the Spanish text of translated attributes so we can switch back.
+  $$("[data-alt-en]").forEach(el => (el.dataset.altEs = el.alt));
+  $$("[data-title-en]").forEach(el => (el.dataset.titleEs = el.title));
 
-  /* ---------- Header ---------- */
-  const header = $("#header");
-  let lastY = 0;
-  function onScrollHeader() {
-    const y = scrollY;
-    header.classList.toggle("scrolled", y > 40);
-    header.classList.toggle("hide", y > lastY && y > 600 && !document.body.classList.contains("menu-open"));
-    lastY = y;
-    $(".wa-float").classList.toggle("show", y > innerHeight * 0.8);
+  function lang() { return root.lang === "en" ? "en" : "es"; }
+  function setLang(l) {
+    root.lang = l;
+    document.title = TITLES[l];
+    $$(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
+    $$("[data-alt-en]").forEach(el => (el.alt = l === "en" ? el.dataset.altEn : el.dataset.altEs));
+    $$("[data-title-en]").forEach(el => (el.title = l === "en" ? el.dataset.titleEn : el.dataset.titleEs));
+    updateWaLinks();
+    if (galleryReady) renderGallery();
+    store.set("k9-lang", l);
   }
+  $$(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
 
-  /* ---------- Mobile menu ---------- */
-  $(".menu-toggle").addEventListener("click", () => {
-    const open = document.body.classList.toggle("menu-open");
-    $(".mobile-menu").setAttribute("aria-hidden", String(!open));
+  /* ---------- Mobile menu (<details>) ---------- */
+  const menu = $(".menu");
+  const closeMenu = () => menu.removeAttribute("open");
+  $$(".menu-panel a").forEach(a => a.addEventListener("click", closeMenu));
+  addEventListener("keydown", e => {
+    if (e.key === "Escape" && menu.open) { closeMenu(); $(".menu-btn").focus(); }
   });
-  $$(".mobile-menu a").forEach(a => a.addEventListener("click", () => {
-    document.body.classList.remove("menu-open");
-    $(".mobile-menu").setAttribute("aria-hidden", "true");
-  }));
+  document.addEventListener("click", e => { if (menu.open && !menu.contains(e.target)) closeMenu(); });
 
-  /* ---------- Reveal on scroll ---------- */
-  const revealIO = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (!en.isIntersecting) return;
-      en.target.classList.add("in");
-      revealIO.unobserve(en.target);
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-  const observeReveals = (scope = document) => $$(".reveal, .reveal-img", scope).forEach(el => revealIO.observe(el));
-  observeReveals();
-
-  /* ---------- Counters ---------- */
-  const countIO = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (!en.isIntersecting) return;
-      const el = en.target, end = +el.dataset.count, dur = 1600, t0 = performance.now();
-      const tick = now => {
-        const p = Math.min(1, (now - t0) / dur);
-        el.textContent = Math.round(end * (1 - Math.pow(1 - p, 4)));
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      reduceMotion ? (el.textContent = end) : requestAnimationFrame(tick);
-      countIO.unobserve(el);
-    });
-  }, { threshold: 0.6 });
-  $$("[data-count]").forEach(el => countIO.observe(el));
-
-  /* ---------- Manifesto: words light up while scrolling ---------- */
-  const wordsBlock = $("[data-words]");
-  function splitWords(node) {
-    [...node.childNodes].forEach(child => {
-      if (child.nodeType === 3) {
-        const frag = document.createDocumentFragment();
-        child.textContent.split(/(\s+)/).forEach(part => {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-          const s = document.createElement("span");
-          s.className = "w"; s.textContent = part; frag.appendChild(s);
-        });
-        child.replaceWith(frag);
-      } else if (child.nodeType === 1) splitWords(child);
-    });
-  }
-  if (wordsBlock) splitWords(wordsBlock);
-  function onScrollWords() {
-    if (!wordsBlock) return;
-    const r = wordsBlock.getBoundingClientRect();
-    const p = Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35)));
-    const words = $$(`.${lang()} .w`, wordsBlock);
-    const n = Math.round(p * words.length);
-    words.forEach((w, i) => w.classList.toggle("on", i < n));
-  }
-  if (reduceMotion && wordsBlock) $$(".w", wordsBlock).forEach(w => w.classList.add("on"));
-
-  /* ---------- Lazy, in-view-only videos ---------- */
-  const vidIO = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      const v = en.target;
-      if (en.isIntersecting) {
-        if (v.dataset.src && !v.src) { v.src = v.dataset.src; v.load(); }
-        if (!reduceMotion) v.play().catch(() => {});
-      } else v.pause();
-    });
-  }, { threshold: 0.15 });
-  $$("video[data-src]").forEach(v => vidIO.observe(v));
-  const heroVideo = $("#heroVideo");
-  if (reduceMotion && heroVideo) heroVideo.pause();
-
-  /* ---------- Scroll-driven effects ---------- */
-  const packVideo = $("#packVideo");
-  const strip = $("#strip"), stripTrack = strip && $(".strip-track", strip);
-  const parallaxEls = $$("[data-parallax]");
-  const heroMedia = $(".hero-media");
-
-  function onScrollEffects() {
-    if (reduceMotion) return;
-    const vh = innerHeight;
-
-    if (heroMedia && scrollY < vh * 1.2) {
-      heroMedia.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0) scale(${1 + scrollY / vh * 0.08})`;
-    }
-    if (packVideo) {
-      const r = packVideo.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, (vh - r.top) / (vh * 0.9)));
-      packVideo.style.transform = `scale(${0.86 + p * 0.14})`;
-      packVideo.style.borderRadius = `${40 - p * 18}px`;
-    }
-    if (stripTrack) {
-      const r = strip.getBoundingClientRect();
-      const p = (vh - r.top) / (vh + r.height);
-      const max = stripTrack.scrollWidth - innerWidth;
-      stripTrack.style.transform = `translate3d(${-Math.max(0, Math.min(1, p)) * max}px, 0, 0)`;
-    }
-    parallaxEls.forEach(el => {
-      const r = el.getBoundingClientRect();
-      const c = r.top + r.height / 2 - vh / 2;
-      el.style.translate = `0 ${c * +el.dataset.parallax}px`;
-    });
-  }
-
-  let ticking = false;
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      onScrollHeader(); onScrollWords(); onScrollEffects();
-      ticking = false;
-    });
-  }
-  addEventListener("scroll", onScroll, { passive: true });
-  addEventListener("resize", onScroll);
-  addEventListener("load", onScroll);
-  onScroll();
-
-  /* ---------- A day: sticky visual follows the steps ---------- */
-  const steps = $$(".day-step"), dayImgs = $$(".day-visual img"), clock = $("#dayClock");
-  const dayIO = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (!en.isIntersecting) return;
-      const i = steps.indexOf(en.target);
-      steps.forEach((s, k) => s.classList.toggle("active", k === i));
-      dayImgs.forEach((img, k) => img.classList.toggle("active", k === i));
-      if (clock) clock.textContent = en.target.dataset.time;
-    });
-  }, { rootMargin: "-45% 0px -45% 0px" });
-  steps.forEach(s => dayIO.observe(s));
+  /* ---------- Hero video: stay still for people who prefer less motion ---------- */
+  const heroVideo = $(".hero-video");
+  if (reduceMotion && heroVideo) { heroVideo.removeAttribute("autoplay"); heroVideo.pause(); }
 
   /* ---------- Gallery ---------- */
-  const masonry = $("#masonry"), loadMore = $("#loadMore");
-  const PAGE = 20;
-  let filter = "all", shown = PAGE, list = [];
+  const PAGE = 12;
+  const GROUPS = { all: null, caminatas: ["montana", "manada", "agua"], hotel: ["hotel"], paseos: ["ruta"] };
+  const ALT = {
+    montana: { es: "Perros caminando en la montaña", en: "Dogs hiking in the mountains" },
+    manada: { es: "La manada en la montaña", en: "The pack in the mountains" },
+    agua: { es: "Perros refrescándose en el agua", en: "Dogs cooling off in the water" },
+    hotel: { es: "Perros en el hotel", en: "Dogs at the hotel" },
+    ruta: { es: "Perros en un paseo", en: "Dogs on a walk" },
+  };
+  const gallery = $("#gallery"), loadMore = $("#loadMore"), filters = $(".filters");
   const file = (id, sm) => `img/k9-${String(id).padStart(4, "0")}${sm ? "-sm" : ""}.webp`;
+  let filter = "all", shown = PAGE, list = [], galleryReady = false;
 
   function renderGallery() {
-    list = (window.GALLERY || []).filter(g => filter === "all" || g[1] === filter);
-    masonry.innerHTML = "";
-    list.slice(0, shown).forEach(([id, , w, h], idx) => {
-      const fig = document.createElement("figure");
-      fig.className = "tile reveal";
-      fig.dataset.cursor = "ver";
-      fig.innerHTML = `<img src="${file(id, true)}" width="${w}" height="${h}" loading="lazy" alt="The K9 Boutique Hotel">`;
-      fig.addEventListener("click", () => openLightbox(idx));
-      masonry.appendChild(fig);
-    });
-    loadMore.parentElement.style.display = shown >= list.length ? "none" : "";
-    observeReveals(masonry);
-    bindCursor(masonry);
+    const group = GROUPS[filter];
+    list = (window.GALLERY || []).filter(g => !group || group.includes(g[1]));
+    gallery.replaceChildren(...list.slice(0, shown).map(([id, cat, w, h], idx) => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = file(id, false);
+      const img = new Image(w > h ? 720 : 540, w > h ? 540 : 720);
+      img.src = file(id, true); img.loading = "lazy"; img.alt = ALT[cat][lang()];
+      a.appendChild(img);
+      a.addEventListener("click", e => { e.preventDefault(); openLightbox(idx, a); });
+      li.appendChild(a);
+      return li;
+    }));
+    loadMore.hidden = shown >= list.length;
   }
-  $$(".filters button").forEach(b => b.addEventListener("click", () => {
-    $$(".filters button").forEach(x => x.classList.toggle("active", x === b));
-    filter = b.dataset.filter; shown = PAGE; renderGallery();
-  }));
-  loadMore.addEventListener("click", () => { shown += PAGE; renderGallery(); });
-  renderGallery();
+  if (window.GALLERY) {
+    filters.hidden = false;
+    $$("button", filters).forEach(b => b.addEventListener("click", () => {
+      $$("button", filters).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      filter = b.dataset.filter; shown = PAGE; renderGallery();
+    }));
+    loadMore.addEventListener("click", () => {
+      const first = shown;
+      shown += PAGE; renderGallery();
+      // move keyboard focus to the first new photo
+      const next = $$("a", gallery)[first];
+      if (next) next.focus({ preventScroll: true });
+    });
+    galleryReady = true;
+  }
 
   /* ---------- Lightbox ---------- */
   const lb = $("#lightbox"), lbImg = $("img", lb), lbCount = $(".lb-count", lb);
-  let lbIndex = 0;
+  let lbIndex = 0, lbReturn = null;
   function showLb(i) {
     lbIndex = (i + list.length) % list.length;
-    const id = list[lbIndex][0];
+    const [id, cat] = list[lbIndex];
     lbImg.src = file(id, true);
+    lbImg.alt = ALT[cat][lang()];
     const full = new Image();
     full.onload = () => { if (list[lbIndex][0] === id) lbImg.src = full.src; };
     full.src = file(id, false);
     lbCount.textContent = `${lbIndex + 1} / ${list.length}`;
   }
-  function openLightbox(i) { showLb(i); lb.classList.add("open"); lb.setAttribute("aria-hidden", "false"); document.body.style.overflow = "hidden"; }
-  function closeLightbox() { lb.classList.remove("open"); lb.setAttribute("aria-hidden", "true"); document.body.style.overflow = ""; }
-  $(".lb-close", lb).addEventListener("click", closeLightbox);
-  $(".lb-prev", lb).addEventListener("click", e => { e.stopPropagation(); showLb(lbIndex - 1); });
-  $(".lb-next", lb).addEventListener("click", e => { e.stopPropagation(); showLb(lbIndex + 1); });
-  lb.addEventListener("click", e => { if (e.target === lb) closeLightbox(); });
-  addEventListener("keydown", e => {
-    if (!lb.classList.contains("open")) return;
-    if (e.key === "Escape") closeLightbox();
+  function openLightbox(i, from) { lbReturn = from; showLb(i); lb.showModal(); }
+  lb.addEventListener("close", () => { if (lbReturn) lbReturn.focus(); });
+  $(".lb-close", lb).addEventListener("click", () => lb.close());
+  $(".lb-prev", lb).addEventListener("click", () => showLb(lbIndex - 1));
+  $(".lb-next", lb).addEventListener("click", () => showLb(lbIndex + 1));
+  lb.addEventListener("click", e => { if (e.target === lb) lb.close(); });
+  lb.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft") showLb(lbIndex - 1);
     if (e.key === "ArrowRight") showLb(lbIndex + 1);
   });
@@ -261,24 +148,22 @@ const CONFIG = {
     touchX = null;
   });
 
-  /* ---------- FAQ ---------- */
-  $$(".faq-item button").forEach(btn => btn.addEventListener("click", () => {
-    const item = btn.parentElement, open = !item.classList.contains("open");
-    $$(".faq-item").forEach(i => { i.classList.remove("open"); $("button", i).setAttribute("aria-expanded", "false"); });
-    if (open) { item.classList.add("open"); btn.setAttribute("aria-expanded", "true"); }
-  }));
-
   /* ---------- Booking form -> WhatsApp ---------- */
   const form = $("#bookingForm");
   $$("[data-service]").forEach(a => a.addEventListener("click", () => {
     const r = form.querySelector(`input[value="${a.dataset.service}"]`);
     if (r) r.checked = true;
   }));
+  function setError(name, on) {
+    const input = form.elements[name];
+    input.setAttribute("aria-invalid", String(on));
+    $(`#${input.id}-err`).hidden = !on;
+  }
   form.addEventListener("submit", e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(form));
     const missing = ["name", "dog"].filter(k => !String(d[k] || "").trim());
-    missing.forEach(k => form.elements[k].style.borderColor = "var(--clay)");
+    ["name", "dog"].forEach(k => setError(k, missing.includes(k)));
     if (missing.length) { form.elements[missing[0]].focus(); return; }
     const en = lang() === "en";
     const services = en
@@ -297,27 +182,10 @@ const CONFIG = {
     ];
     window.open(waLink(lines.filter(l => l !== null).join("\n")), "_blank", "noopener");
   });
-  $$("input, textarea", form).forEach(i => i.addEventListener("input", () => (i.style.borderColor = "")));
+  ["name", "dog"].forEach(k => form.elements[k].addEventListener("input", () => {
+    if (form.elements[k].value.trim()) setError(k, false);
+  }));
 
-  /* ---------- Cursor bubble (desktop) ---------- */
-  const cursor = $(".cursor");
-  let cx = 0, cy = 0, tx = 0, ty = 0;
-  function bindCursor(scope = document) {
-    if (!finePointer || reduceMotion) return;
-    $$("[data-cursor]", scope).forEach(el => {
-      if (el._cursorBound) return;
-      el._cursorBound = true;
-      el.addEventListener("mouseenter", () => cursor.classList.add("on"));
-      el.addEventListener("mouseleave", () => cursor.classList.remove("on"));
-    });
-  }
-  if (finePointer && !reduceMotion) {
-    addEventListener("mousemove", e => { tx = e.clientX; ty = e.clientY; }, { passive: true });
-    (function loop() {
-      cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18;
-      cursor.style.translate = `${cx}px ${cy}px`;
-      requestAnimationFrame(loop);
-    })();
-    bindCursor();
-  }
+  /* ---------- Start ---------- */
+  setLang(store.get("k9-lang") === "en" ? "en" : "es");
 })();
