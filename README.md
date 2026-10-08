@@ -32,6 +32,10 @@ img/logo*.png       logo (512px and 192px), favicon-32.png, apple-touch-icon.png
 video/              hero video + poster image
 ```
 
+After editing `css/styles.css` or anything in `js/`, change the `?v=` number on those three
+links at the top and bottom of `index.html` (for example `?v=20261008b` → `?v=20261015`).
+That makes browsers download the new files instead of using an old saved copy.
+
 The page works without JavaScript: all text, photos and the first 12 gallery photos are in the
 HTML. JavaScript only adds the English toggle, gallery filters, "See more", the lightbox and the
 WhatsApp message builder. There is no scroll animation.
