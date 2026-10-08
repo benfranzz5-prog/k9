@@ -17,11 +17,9 @@ const CONFIG = {
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-  };
+  // The page language comes from the address: / is Spanish, /en/ is English (built by tools/build.py).
+  const lang = () => (root.lang === "en" ? "en" : "es");
+  const base = root.dataset.root || "";  // "../" on /en/, so image paths still work
 
   /* ---------- Contact links ---------- */
   const waLink = (text = "") => `https://wa.me/${CONFIG.whatsapp}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
@@ -34,28 +32,6 @@ const CONFIG = {
   $$("[data-phone]").forEach(el => (el.textContent = CONFIG.phoneDisplay));
   $$("[data-social]").forEach(a => { a.href = CONFIG[a.dataset.social]; a.target = "_blank"; a.rel = "noopener"; });
   $("#year").textContent = new Date().getFullYear();
-
-  /* ---------- Language ---------- */
-  const TITLES = {
-    es: document.title,
-    en: "The K9 Boutique Hotel · Dog hotel and mountain hikes · Jalisco",
-  };
-  // Remember the Spanish text of translated attributes so we can switch back.
-  $$("[data-alt-en]").forEach(el => (el.dataset.altEs = el.alt));
-  $$("[data-title-en]").forEach(el => (el.dataset.titleEs = el.title));
-
-  function lang() { return root.lang === "en" ? "en" : "es"; }
-  function setLang(l) {
-    root.lang = l;
-    document.title = TITLES[l];
-    $$(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
-    $$("[data-alt-en]").forEach(el => (el.alt = l === "en" ? el.dataset.altEn : el.dataset.altEs));
-    $$("[data-title-en]").forEach(el => (el.title = l === "en" ? el.dataset.titleEn : el.dataset.titleEs));
-    updateWaLinks();
-    if (galleryReady) renderGallery();
-    store.set("k9-lang", l);
-  }
-  $$(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
 
   /* ---------- Mobile menu (<details>) ---------- */
   const menu = $(".menu");
@@ -81,8 +57,8 @@ const CONFIG = {
     ruta: { es: "Perros en una caminata", en: "Dogs on a hike" },
   };
   const gallery = $("#gallery"), loadMore = $("#loadMore"), filters = $(".filters");
-  const file = (id, sm) => `img/k9-${String(id).padStart(4, "0")}${sm ? "-sm" : ""}.webp`;
-  let filter = "all", shown = PAGE, list = [], galleryReady = false;
+  const file = (id, sm) => `${base}img/k9-${String(id).padStart(4, "0")}${sm ? "-sm" : ""}.webp`;
+  let filter = "all", shown = PAGE, list = [];
 
   function renderGallery() {
     const group = GROUPS[filter];
@@ -113,7 +89,7 @@ const CONFIG = {
       const next = $$("a", gallery)[first];
       if (next) next.focus({ preventScroll: true });
     });
-    galleryReady = true;
+    renderGallery();  // replaces the 12 static photos with interactive ones
   }
 
   /* ---------- Lightbox ---------- */
@@ -187,5 +163,5 @@ const CONFIG = {
   }));
 
   /* ---------- Start ---------- */
-  setLang(store.get("k9-lang") === "en" ? "en" : "es");
+  updateWaLinks();
 })();
