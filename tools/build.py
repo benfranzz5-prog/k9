@@ -30,18 +30,18 @@ AREAS = [
 
 SEO = {
     "es": {
-        "title": "Hotel para perros cerca de Chapala y Ajijic | The K9 Boutique Hotel",
-        "description": "Hotel para perros y caminatas en manada sin correa, cerca de Chapala, Ajijic y "
-                       "San Nicolás de Ibarra. Habitación propia y 20 años de experiencia. Cotiza por WhatsApp.",
+        "title": "Hotel para perros en Ixtlahuacán | The K9 Boutique Hotel",
+        "description": "Hotel para perros y caminatas diarias en manada, sin correa, en Ixtlahuacán. "
+                       "Atendemos Chapala, Ajijic y San Nicolás. 20 años de experiencia.",
         "business": "Hotel para perros con habitación propia y jardín grande, y caminatas diarias en manada "
                     "en la montaña, sin correa. Cerca del Lago de Chapala.",
         "services": ["Hotel para perros (pensión canina)", "Caminatas en manada (paseo de perros)"],
         "locale": "es_MX", "alt_locale": "en_US",
     },
     "en": {
-        "title": "Dog Boarding & Pack Hikes near Ajijic | The K9 Boutique Hotel",
-        "description": "Dog boarding and off-leash pack hikes near Ajijic, Chapala and San Nicolás de Ibarra. "
-                       "Private rooms, a big yard and 20 years of experience. Get a quote on WhatsApp.",
+        "title": "Dog Boarding & Pack Hikes in Ixtlahuacán | The K9 Boutique Hotel",
+        "description": "Dog boarding and daily off-leash pack hikes in Ixtlahuacán, serving all of Lakeside: "
+                       "Ajijic, Chapala and San Nicolás. Private rooms, 20 years' experience.",
         "business": "Dog boarding with a private room for every dog and a big yard, plus daily off-leash "
                     "pack hikes in the mountains near Lake Chapala.",
         "services": ["Dog boarding (dog hotel)", "Pack hikes (dog walking)"],

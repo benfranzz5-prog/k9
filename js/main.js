@@ -45,6 +45,25 @@ const CONFIG = {
   /* ---------- Hero video: stay still for people who prefer less motion ---------- */
   const heroVideo = $(".hero-video");
   if (reduceMotion && heroVideo) { heroVideo.removeAttribute("autoplay"); heroVideo.pause(); }
+  else if (heroVideo && heroVideo.dataset.next) {
+    // Play the banner clip first, then the montage, then repeat. A second <video> waits behind
+    // the first so the switch is an instant cut. Without JavaScript the first clip simply loops.
+    const next = document.createElement("video");
+    Object.assign(next, { muted: true, playsInline: true, preload: "none", hidden: true, src: base + heroVideo.dataset.next });
+    next.className = "hero-video";
+    next.setAttribute("aria-hidden", "true");
+    heroVideo.after(next);
+    heroVideo.loop = false;
+    heroVideo.addEventListener("playing", () => (next.preload = "auto"), { once: true });
+    const clips = [heroVideo, next];
+    clips.forEach((v, i) => v.addEventListener("ended", () => {
+      const other = clips[1 - i];
+      other.currentTime = 0;
+      other.hidden = false;
+      other.play().catch(() => {});
+      v.hidden = true;
+    }));
+  }
 
   /* ---------- Gallery ---------- */
   const PAGE = 12;
