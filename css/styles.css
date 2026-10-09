@@ -203,6 +203,7 @@ h3 { font-family: var(--f-body); font-size: 22px; font-weight: 600; line-height:
 /* ---------- Photos ---------- */
 .photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-card); background: var(--line); }
 .figure figcaption { margin-top: 12px; font-weight: 600; }
+.hotel-photos > .figure { grid-column: span 6; }
 
 /* ---------- How it works ---------- */
 .steps { counter-reset: none; }
@@ -391,7 +392,7 @@ h3 { font-family: var(--f-body); font-size: 22px; font-weight: 600; line-height:
   .hero-kicker { font-size: 16px; }
   h2 { font-size: 30px; }
   h3 { font-size: 20px; }
-  .steps > *, .services > .service { grid-column: 1 / -1; }
+  .steps > *, .services > .service, .hotel-photos > .figure { grid-column: 1 / -1; }
   .brand { gap: var(--s1); font-size: 15px; }
   .brand img { width: 44px; height: 44px; }
   .brand span { max-width: 7.5em; }

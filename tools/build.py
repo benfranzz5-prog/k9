@@ -164,6 +164,8 @@ def english(page, cfg):
     page = page.replace('<html lang="es">', '<html lang="en" data-root="../">', 1)
     # files live one folder up
     page = re.sub(r'\b(src|href|poster)="(img|video|css|js)/', r'\1="../\2/', page)
+    page = re.sub(r'\bsrcset="([^"]*)"',
+                  lambda m: 'srcset="' + re.sub(r'(^|,\s*)img/', r'\1../img/', m.group(1)) + '"', page)
     # language switch: Spanish is one folder up, English is this page
     page = re.sub(r'<a href="[^"]*"( data-lang-link="es"[^>]*?)( aria-current="page")?>',
                   r'<a href="../"\1>', page)
